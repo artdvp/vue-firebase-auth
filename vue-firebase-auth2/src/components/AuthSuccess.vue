@@ -1,9 +1,9 @@
 <template>
   <div>
       <h1>Signup succeeded</h1>
-      <button @click="logut">Log out</button>
+      <button @click="logOut">Log out</button>
       <hr>
-      <img :src="photo" :style="'height: 120px'" alt="img"> <br>
+      <img :src="photo" v-if="photoShow" :style="'height: 120px'" alt="img" > <br>
       <p>{{ name }}</p>
       <p>{{ email }}</p>
       <p>{{ userId }}</p>
@@ -22,21 +22,52 @@ export default {
       userId: "",
       name: "",
       email: "",
-      user: {}
+      user: {},
+      photoShow: false
     };
   },
   created() {
+    console.log("auth created");
     this.user = firebase.auth().currentUser;
     if (this.user) {
-      this.name = this.name.displayName;
+      if (this.name.displayName) {
+        this.name = this.name.displayName;
+        this.photoShow = true;
+      } else {
+        this.photoShow = false;
+      }
       this.email = this.user.email;
       this.photo = this.user.photoURL;
       this.userId = this.user.uid;
     }
   },
+  mounted() {
+    console.log("auth mounted");
+    this.callFirebase();
+  },
   methods: {
     logOut() {
+      let _router = this.$router;
       firebase.auth().signOut();
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (!user) {
+          _router.push({path: 'auth'})
+        }
+      });
+    },
+    callFirebase() {
+      this.user = firebase.auth().currentUser;
+      if (this.user) {
+        if (this.name.displayName) {
+          this.name = this.name.displayName;
+          this.photoShow = true;
+        } else {
+          this.photoShow = false;
+        }
+        this.email = this.user.email;
+        this.photo = this.user.photoURL;
+        this.userId = this.user.uid;
+      }
     }
   }
 };

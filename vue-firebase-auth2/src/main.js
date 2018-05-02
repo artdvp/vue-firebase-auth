@@ -8,18 +8,22 @@ import { config } from "./helpers/firebaseConfig";
 
 Vue.use(VueRouter);
 
-new Vue({
-  router,
-  created() {
-    firebase.initializeApp(config);
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        this.$router.push("/success");
-      } else {
-        this.$router.push("/auth");
-      }
+let app;
+
+firebase.initializeApp(config);
+firebase.auth().onAuthStateChanged(function(user) {
+  if (!app) {
+    app = new Vue({
+      el: "#app",
+      router,
+      components: { App },
+      template: "<App/>"
     });
-  },
-  el: "#app",
-  render: h => h(App)
+    // if (user) {
+    //   this.$router.push('/success');
+    // } else {
+    //   this.$router.push('/auth');
+    // }
+  }
+  
 });
